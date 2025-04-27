@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Galeria</title>
+  <link rel="stylesheet" href="{% static 'css/gallery.css' %}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet" />
+</head>
+<body>
+
+<header>
+  <h1>Galeria: {{ session.title }}</h1>
+</header>
+
+<section class="gallery-grid">
+  {% for image in session.photos.all %}
+    <a href="{{ image.image.url }}" data-lightbox="session-gallery">
+      <img src="{{ image.image.url }}" alt="Zdjęcie" />
+    </a>
+  {% empty %}
+    <p>Brak zdjęć w tej sesji.</p>
+  {% endfor %}
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+
+</body>
+</html>
