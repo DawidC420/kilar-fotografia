@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 
 class Session(models.Model):
@@ -5,6 +6,15 @@ class Session(models.Model):
     description = models.TextField(blank=True)
     password = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+    access_token = models.CharField(max_length=36, unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.access_token:
+            self.access_token = str(uuid.uuid4())
+        super().save(*args, **kwargs)
+    
+    def generate_new_token(self):
+        return str(uuid.uuid4())
 
     def __str__(self):
         return self.name

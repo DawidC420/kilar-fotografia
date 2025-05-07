@@ -10,12 +10,14 @@ def check_password(request):
         password = request.POST.get('password')
         try:
             session = Session.objects.get(password=password)
-            return redirect('gallery_view', session_id=session.id)
+            session.access_token = session.generate_new_token()
+            session.save()
+            return redirect('gallery_view', access_token=session.access_token)
         except Session.DoesNotExist:
             return render(request, 'fotoapp/homepage.html', {'error': 'Nieprawidłowe hasło'})
     return redirect('home')
 
-def gallery_view(request, session_id):
-    session = get_object_or_404(Session, id=session_id)
+def gallery_view(request, access_token):
+    session = get_object_or_404(Session, access_token=access_token)
     photos = session.photos.all()
     return render(request, 'fotoapp/gallery.html', {'session': session, 'photos': photos})
