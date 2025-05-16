@@ -126,3 +126,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+
+from cryptography.fernet import Fernet
+
+
+ENCRYPTION_KEY ='WyFihaDs8RiDcY6lCd_lxFKI4xfJeeRx7mIqRyB1-1k='
+
+FERNET = Fernet(ENCRYPTION_KEY)

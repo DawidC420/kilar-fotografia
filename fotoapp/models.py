@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from django.utils.crypto import get_random_string
+from django.core.files.base import ContentFile
 
 class Session(models.Model):
     name = models.CharField(max_length=100)
@@ -34,6 +35,8 @@ class Session(models.Model):
 class Photo(models.Model):
     session = models.ForeignKey(Session, related_name='photos', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='session_photos/')
-
+    
     def __str__(self):
         return f"Photo for {self.session.name}"
+    
+
