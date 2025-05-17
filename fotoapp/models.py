@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 from django.utils.crypto import get_random_string
-from django.core.files.base import ContentFile
+
 
 class Session(models.Model):
     name = models.CharField(max_length=100)

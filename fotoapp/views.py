@@ -1,7 +1,11 @@
 from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Session,Photo
-
+from .models import Session
+from django.http import FileResponse, Http404
+from .utils import decrypt_path
+import os
+from django.conf import settings
+from .utils import encrypt_path
 
 
 def homepage(request):
@@ -41,11 +45,7 @@ def gallery_view(request, access_token):
     })
 
 
-from django.http import FileResponse, Http404
-from .utils import decrypt_path
-import os
-from django.conf import settings
-from .utils import encrypt_path
+
 
 def serve_encrypted_image(request, token):
     try:
