@@ -9,4 +9,8 @@ urlpatterns = [
     path('', views.homepage, name='home'),
     path('check-password/', views.check_password, name='check_password'),
     path('gallery/<str:access_token>/', views.gallery_view, name='gallery_view'),
+    path('image/<str:token>/', views.serve_encrypted_image, name='serve_encrypted_image'),
+
+    
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
