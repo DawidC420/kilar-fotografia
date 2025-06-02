@@ -23,39 +23,32 @@
 
 
     <section class="gallery-grid">
-     {% for photo, encrypted in photos_data %}
-<div class="photo-item">
-<a href="{% url 'serve_encrypted_image' encrypted.token %}" data-lightbox="session-gallery"  class="no-middle-click">
-  <img src="{% url 'serve_encrypted_image' encrypted.token %}" alt="Zdjęcie" />
-</a>
-
-          <div class="photo-options">
-           
-
-            <label>
-              Ilość:
-              <input type="number" name="quantity_{{ image.id }}" min="1" max="9999" value="1" pattern="\d*" oninput="limitDigits(this, 5)">
-            </label>
-
-            <label>
-              <select name="size_{{ image.id }}">
-                <option value="rozmiar">-Format-</option>
-                <option value="small">10x10</option>
-                <option value="medium">20x20</option>
-                <option value="large">30x30</option>
-              </select>
-            </label>
-
-            <p class="price">Cena: 20 zł</p>
-          </div>
+     {% for photo in photos %}
+      <div class="photo-item"> 
+        <a href="{% url 'serve_encrypted_image' photo.token %}" data-lightbox="session-gallery">
+      <img src="{% url 'serve_encrypted_image' photo.token %}" alt="Zdjęcie" />
+        </a>
+              <div class="photo-options">
+               <label>
+                Ilość:
+                <input type="number" name="quantity_{{ image.id }}" min="1" max="9999" value="1" pattern="\d*" oninput="limitDigits(this, 5)">
+              </label>
+               <label>
+                 <select name="size_{{ image.id }}">
+                 <option value="rozmiar">-Format-</option>
+                 <option value="small">10x10</option>
+                 <option value="medium">20x20</option>
+                 <option value="large">30x30</option>
+                </select>
+              </label>
+                <p class="price">Cena: 20 zł</p>
+            </div>
         </div>
       {% empty %}
         <p>Brak zdjęć w tej sesji.</p>
       {% endfor %}
     </section>
-
-    <button type="submit">Dodaj do koszyka</button>
- 
+      <button type="submit">Dodaj do koszyka</button>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
@@ -74,54 +67,11 @@
       element.value = element.value.slice(0, maxDigits);
     }
   }
-
   // Lightbox konfiguracja//
   lightbox.option({
     'resizeDuration': 100,
     'wrapAround': true,
-    
-
-    
   });
-  
-  
-
-      document.addEventListener('DOMContentLoaded', () => {
-  
-    document.querySelectorAll('img').forEach(img => {
-      img.addEventListener('contextmenu', e => e.preventDefault());
-      img.setAttribute('draggable', 'false');
-      
-    });
-
-
-
-   
-    setInterval(() => {
-      const lightboxImg = document.querySelector('.lb-image'); 
-      if (lightboxImg) {
-        lightboxImg.oncontextmenu = () => false;
-        lightboxImg.setAttribute('draggable', 'false');
-      }
-    }, 300);
-  });
-
-document.querySelectorAll('.no-middle-click').forEach(link => {
-    link.addEventListener('mousedown', function(e) {
-      if (e.button === 1) { 
-        e.preventDefault();
-      }
-    });
-
- 
-    link.addEventListener('auxclick', function(e) {
-      if (e.button === 1) {
-        e.preventDefault();
-      }
-    });
-  });
-
-
 
 </script>
 
