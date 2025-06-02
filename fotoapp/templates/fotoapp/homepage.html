@@ -2,22 +2,34 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Kilar Fotografia</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="{% static 'css/homepage.css' %}"
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{% static 'css/homepage.css' %}" />
 </head>
 <body>
 
 <header id="mainHeader">
   <div class="logo-left">
-    <img src="{% static 'images/logo.png' %}" alt="Logo" />
+    <img
+      id="logoImg"
+      src="{% static 'images/logo.png' %}"
+      alt="Logo"
+      data-logo="{% static 'images/logo.png' %}"
+      data-logo-inverted="{% static 'images/logo-inverted.png' %}"
+    />
   </div>
 
   <div class="nav-links">
-    <a href="#">Strona główna</a>
-    <a href="#">Oferta</a>
-    <a href="#">Kontakt</a>
+    <a href="">Strona główna</a>
+    <a href="{% url 'oferta' %}">Oferta</a>
+    <a href="{% url 'kontakt' %}">Kontakt</a>
+  </div>
+
+  <div class="hamburger" id="hamburgerBtn">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 </header>
 
@@ -44,53 +56,43 @@
   </div>
 </section>
 
-
 <section class="gallery">
   <div class="gallery-card" onclick="scrollToLogin()">
-    <img src="{% static 'images/wedding1.png' %}" alt="Galeria 1">
+    <img src="{% static 'images/wedding1.png' %}" alt="Galeria 1" />
     <h3>Ślub Karoliny i Michała</h3>
   </div>
   <div class="gallery-card" onclick="scrollToLogin()">
-    <img src="{% static 'images/wedding2.png' %}" alt="Galeria 2">
+    <img src="{% static 'images/wedding2.png' %}" alt="Galeria 2" />
     <h3>Komunia Zosi</h3>
   </div>
   <div class="gallery-card" onclick="scrollToLogin()">
-    <img src="{% static 'images/wedding3.png' %}" alt="Galeria 3">
+    <img src="{% static 'images/wedding3.png' %}" alt="Galeria 3" />
     <h3>Chrzest Antosia</h3>
   </div>
   <div class="gallery-card" onclick="scrollToLogin()">
-    <img src="{% static 'images/wedding4.png' %}" alt="Galeria 4">
+    <img src="{% static 'images/wedding4.png' %}" alt="Galeria 4" />
     <h3>Ślub Moniki i Pawła</h3>
   </div>
   <div class="gallery-card" onclick="scrollToLogin()">
-    <img src="{% static 'images/wedding5.png' %}" alt="Galeria 5">
+    <img src="{% static 'images/wedding5.png' %}" alt="Galeria 5" />
     <h3>Roczek Jasia</h3>
   </div>
   <div class="gallery-card" onclick="scrollToLogin()">
-    <img src="{% static 'images/wedding6.png' %}" alt="Galeria 6">
+    <img src="{% static 'images/wedding6.png' %}" alt="Galeria 6" />
     <h3>Plener Agaty</h3>
   </div>
 </section>
-
 
 <footer>
   &copy; 2025 Kilar Fotografia. Wszelkie prawa zastrzeżone.
 </footer>
 
+<script src="{% static 'js/navbar.js' %}"></script>
 <script>
   function scrollToLogin() {
     document.querySelector('.hero-with-login').scrollIntoView({ behavior: 'smooth' });
     document.getElementById('passwordInput').focus();
   }
-
-  window.addEventListener('scroll', () => {
-    const header = document.getElementById('mainHeader');
-    if (window.scrollY > 80) {
-      header.classList.add('scrolled');
-    } else {
-      header.classList.remove('scrolled');
-    }
-  });
 </script>
 
 </body>

@@ -11,6 +11,12 @@ from .utils import encrypt_path
 def homepage(request):
     return render(request, 'fotoapp/homepage.html')
 
+def oferta(request):
+    return render(request, 'fotoapp/oferta.html')
+
+def kontakt(request):
+    return render(request, 'fotoapp/kontakt.html')
+
 def check_password(request):
     if request.method == "POST":
         password = request.POST.get('password')
