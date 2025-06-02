@@ -87,17 +87,17 @@
           galleryTabs.forEach(t => t.classList.remove('active'));
           this.classList.add('active');
           const filterValue = this.dataset.filter;
-          // TODO: Implement filtering logic based on filterValue
+          // todo; filtr
           console.log('Filtruj wg:', filterValue);
         });
       });
 
-      // --- Obsługa dropdownu filtrowania (jeśli potrzebna dodatkowa logika) ---
+      // --- Obsługa dropdownu filtrowania
       const photoFilterSelect = document.getElementById('photoFilterSelect');
       if (photoFilterSelect) {
         photoFilterSelect.addEventListener('change', function() {
           const selectedValue = this.value;
-          // TODO: Implement filtering logic based on selectedValue
+          // todo; filtr
           console.log('Filtruj wg (select):', selectedValue);
         });
       }
@@ -111,7 +111,7 @@
 
           const photoItem = button.closest('.photo-item');
           if (!photoItem || photoItem.classList.contains('print')) {
-            return; // Nie rób nic dla zdjęć 'print' lub jeśli nie znaleziono photoItem
+            return; 
           }
 
           const iconElement = button.querySelector('.icon');
@@ -129,28 +129,11 @@
             if (textElement) textElement.textContent = 'Wybierz';
             if (statusChip) statusChip.classList.remove('visible');
           }
-          // Logika zmiany stylów przycisków powinna być obsługiwana przez CSS
-          // np. .photo-item.selected .select-btn { ... }
-          // np. .photo-item:not(.selected):not(.print) .select-btn { ... }
+          
         });
       }
 
-      // --- Inicjalizacja stanu dla elementów już zaznaczonych (obsługiwane przez Django Template) ---
-      // Szablon Django powinien już poprawnie ustawić klasy 'selected' i 'visible'
-      // oraz tekst przycisków. Poniższy kod byłby nadmiarowy, jeśli Django
-      // w pełni zarządza stanem początkowym.
-      /*
-      document.querySelectorAll('.photo-item.selected:not(.print)').forEach(photoItem => {
-        const button = photoItem.querySelector('.select-btn.action-chip');
-        const iconElement = button.querySelector('.icon');
-        const textElement = button.querySelector('.text');
-        const statusChip = photoItem.querySelector('.status-chip');
-
-        if (iconElement) iconElement.textContent = '-';
-        if (textElement) textElement.textContent = 'Usuń';
-        if (statusChip) statusChip.classList.add('visible');
-      });
-      */
+      
 
       // --- Ochrona obrazów ---
       document.querySelectorAll('img').forEach(img => {
@@ -168,10 +151,7 @@
           lightboxImg.setAttribute('draggable', 'false');
         }
       };
-      // Uruchom raz, a potem przy każdej zmianie obrazu w lightboxie, jeśli lightbox emituje zdarzenia.
-      // Jeśli nie, interwał jest obejściem.
-      // Można by to zintegrować z eventami Lightboxa, np. po otwarciu nowego obrazu.
-      protectLightboxImage(); // Wywołaj raz na początku
+      protectLightboxImage();
       new MutationObserver(protectLightboxImage).observe(document.body, { childList: true, subtree: true });
     
 
@@ -183,7 +163,6 @@
             e.preventDefault();
           }
         });
-        // auxclick jest bardziej standardowym eventem dla przycisków innych niż lewy
         link.addEventListener('auxclick', function(e) {
           if (e.button === 1) {
             e.preventDefault();
@@ -200,18 +179,6 @@
 
           if (selectedPhotoIds.length > 0) {
             alert('Wybrane zdjęcia (ID): ' + selectedPhotoIds.join(', '));
-            // Tutaj logika AJAX do wysłania danych na serwer
-            // np. fetch('/add-to-cart-url/', {
-            //   method: 'POST',
-            //   headers: {
-            //     'Content-Type': 'application/json',
-            //     'X-CSRFToken': '{{ csrf_token }}' // Jeśli używasz CSRF tokenów Django
-            //   },
-            //   body: JSON.stringify({ photo_ids: selectedPhotoIds })
-            // })
-            // .then(response => response.json())
-            // .then(data => console.log('Success:', data))
-            // .catch((error) => console.error('Error:', error));
           } else {
             alert('Nie wybrano żadnych zdjęć.');
           }

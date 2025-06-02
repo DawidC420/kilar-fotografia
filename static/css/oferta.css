@@ -1,5 +1,5 @@
 .oferta-hero {
-  background-image: url("../images/wedding.png"); /* Sprawdź, czy ten obraz jest w folderze images */
+  background-image: url("../images/wedding.png");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -33,16 +33,16 @@
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   padding: 4rem 6rem;
-  background-color: #2a2a2a; /* ciemnoszare, przyjemne dla oka */
+  background-color: #2a2a2a;
 }
 
 .oferta-card {
-  background: #1e1e1e; /* jasny, lekko kremowy kolor */
+  background: #1e1e1e;
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   transition: transform 0.3s, box-shadow 0.3s;
-  color: #222; /* ciemny tekst dla czytelności */
+  color: #222;
 }
 
 .oferta-card:hover {
@@ -64,7 +64,7 @@
 
 .oferta-card .cena {
   font-weight: bold;
-  color: #55b9b3; /* turkusowy akcent */
+  color: #55b9b3;
   margin-top: 1rem;
   font-size: 1.1rem;
 }

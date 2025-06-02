@@ -1,9 +1,9 @@
-/* Sekcja dwupanelowa */
+/* Sekcja dwupanelowa - do poprawy*/
 .double-panel {
   display: flex;
   gap: 3rem;
   padding: 4rem 6rem;
-  background: #1e1e1e; /* ciemniejsze tło niż kafelki, dla wyraźnego oddzielenia */
+  background: #1e1e1e;
   color: #f4f4f4;
 }
 
@@ -18,10 +18,7 @@
   align-items: center;
 }
 
-/* Slider i FAQ pozostają bez zmian, bo już mają spójną kolorystykę */
 
-
-/* Slider */
 .slider {
   position: relative;
   width: 100%;
