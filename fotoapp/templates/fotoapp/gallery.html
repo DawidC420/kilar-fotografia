@@ -33,7 +33,7 @@
     </div>
 
     <section class="gallery-grid">
-      {% for photo, encrypted in photos_data %}
+      {% for photo in photos %}
         <div class="photo-item{% if photo.selected and not photo.print %} selected{% endif %}{% if photo.print %} print{% endif %}" data-photo-id="{{ photo.id }}">
           <div class="photo-select-bar">
             {% if photo.print %}
@@ -50,8 +50,8 @@
               </button>
             {% endif %}
           </div>
-          <a href="{% url 'serve_encrypted_image' encrypted.token %}" data-lightbox="session-gallery" class="no-middle-click">
-            <img src="{% url 'serve_encrypted_image' encrypted.token %}" alt="Zdjęcie {{ photo.id }} z sesji" /> {# Lepszy tekst alternatywny #}
+          <a href="{% url 'serve_encrypted_image' photo.token %}" data-lightbox="session-gallery" class="no-middle-click">
+            <img src="{% url 'serve_encrypted_image' photo.token %}" alt="Zdjęcie {{ photo.id }} z sesji" /> {# Lepszy tekst alternatywny #}
             <div class="photo-overlay">Do wyboru</div>
           </a>
           <div class="status-chip {% if photo.selected and not photo.print %}visible{% endif %}">Wybrano</div>
