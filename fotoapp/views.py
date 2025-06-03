@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Session
+from .models import Session, Photo
 from django.http import FileResponse, Http404,HttpResponseForbidden
 from .utils import decrypt_path,encrypt_path
 import os
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 
 
 def homepage(request):
@@ -30,11 +31,6 @@ def check_password(request):
 
 
 def gallery_view(request, access_token):
-# Widok galerii zdjęć dla użytkownika z unikalnym tokenem dostępu.
-# Sprawdza, czy istnieje sesja powiązana z tokenem.
-# Ustawia flagę 'gallery_access' w sesji użytkownika, aby umożliwić podgląd zdjęć.
-# Dla każdego zdjęcia generuje zaszyfrowany token ścieżki.
-# Renderuje szablon galerii z listą zdjęć i ich tokenami.
     session = get_object_or_404(Session, access_token=access_token)
     photos = session.photos.all()
     request.session['gallery_access'] = True
@@ -44,11 +40,6 @@ def gallery_view(request, access_token):
 
 
 def serve_encrypted_image(request, token):
-# Obsługuje bezpieczne serwowanie zaszyfrowanych zdjęć.
-# Sprawdza, czy żądanie pochodzi z galerii (Referer zawiera '/gallery/') oraz czy zdjęcie jest ładowane jako <img> (nagłówek Sec-Fetch-Dest).
-# Sprawdza, czy flaga 'gallery_access' w sesji użytkownika jest ustawiona
-# Deszyfruje token zdjęcia, sprawdza istnienie pliku i zwraca go jako FileResponse.
-# Jeśli weryfikacja się nie powiedzie (zły Referer, brak flagi, błędny token), zwraca błąd 403 lub 404.
     try:
         referer = request.META.get('HTTP_REFERER', '')
         sec_fetch_dest = request.META.get('HTTP_SEC_FETCH_DEST', '')
@@ -65,4 +56,3 @@ def serve_encrypted_image(request, token):
         return FileResponse(open(full_path, 'rb'), content_type='image/jpeg')
     except Exception:
         raise Http404("Błędny token lub plik nie istnieje")
-
