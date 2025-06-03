@@ -1,6 +1,11 @@
 import uuid
 from django.db import models
 from django.utils.crypto import get_random_string
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
+from django.conf import settings
+import os
+
 
 
 class Session(models.Model):
@@ -31,3 +36,12 @@ class Session(models.Model):
 
     def __str__(self):
         return self.name
+
+@receiver(post_delete, sender=Session)
+def session_delete(sender, instance, **kwargs):
+    session_name_slug = instance.name.replace(' ', '_').lower()
+    session_dir = os.path.join(settings.MEDIA_ROOT, 'session_photos', session_name_slug)
+
+    if os.path.isdir(session_dir):
+        if not os.listdir(session_dir):
+            os.rmdir(session_dir)
