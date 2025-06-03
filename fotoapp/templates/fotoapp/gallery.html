@@ -8,76 +8,184 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet" />
 </head>
 <body>
- <div class="background-blur"></div>
+
   <header id="mainHeader">
     <div class="logo-left">
-      <img src="{% static 'images/logo.png' %}" alt="Logo" />
-    </div>
-    <h1>Galeria: {{ session.title }}</h1>
-    <div class="nav-links">
-      <a href="#">Strona główna</a>
-      <a href="#">Oferta</a>
-      <a href="#">Kontakt</a>
+      <img src="{% static 'images/logo.png' %}" alt="Logo Kilar Fotografia" /> {# Lepszy tekst alternatywny dla logo #}
     </div>
   </header>
 
+  <main> {# Dodano element <main> dla lepszej semantyki #}
+    <div class="gallery-controls"> {# Kontener dla zakładek i dropdownu #}
+      <div class="gallery-tabs">
+        <button class="gallery-tab active" data-filter="wszystkie">Wszystkie</button> {# Dodano atrybuty data dla filtrowania #}
+        <button class="gallery-tab" data-filter="zaproponowane">Zaproponowane</button>
+        <button class="gallery-tab" data-filter="do-pobrania">Do pobrania</button>
+      </div>
+
+      <div class="dropdown">
+        <select id="photoFilterSelect"> {# Dodano ID dla łatwiejszego dostępu w JS #}
+          <option value="wszystkie">Wszystkie zdjęcia</option>
+          <option value="wybrane">Wybrane</option>
+          <option value="wydruki">Wydruki</option>
+        </select>
+      </div>
+    </div>
 
     <section class="gallery-grid">
-     {% for photo in photos %}
-      <div class="photo-item"> 
-        <a href="{% url 'serve_encrypted_image' photo.token %}" data-lightbox="session-gallery">
-      <img src="{% url 'serve_encrypted_image' photo.token %}" alt="Zdjęcie" />
-        </a>
-              <div class="photo-options">
-               <label>
-                Ilość:
-                <input type="number" name="quantity_{{ image.id }}" min="1" max="9999" value="1" pattern="\d*" oninput="limitDigits(this, 5)">
-              </label>
-               <label>
-                 <select name="size_{{ image.id }}">
-                 <option value="rozmiar">-Format-</option>
-                 <option value="small">10x10</option>
-                 <option value="medium">20x20</option>
-                 <option value="large">30x30</option>
-                </select>
-              </label>
-                <p class="price">Cena: 20 zł</p>
-            </div>
+      {% for photo in photos %}
+        <div class="photo-item{% if photo.selected and not photo.print %} selected{% endif %}{% if photo.print %} print{% endif %}" data-photo-id="{{ photo.id }}">
+          <div class="photo-select-bar">
+            {% if photo.print %}
+              <span class="print-label action-chip">🖨️ Wydruki</span>
+            {% elif photo.selected %}
+              <button class="select-btn action-chip">
+                <span class="icon">-</span>
+                <span class="text">Usuń</span>
+              </button>
+            {% else %}
+              <button class="select-btn action-chip">
+                <span class="icon">+</span>
+                <span class="text">Wybierz</span>
+              </button>
+            {% endif %}
+          </div>
+          <a href="{% url 'serve_encrypted_image' photo.token %}" data-lightbox="session-gallery" class="no-middle-click">
+            <img src="{% url 'serve_encrypted_image' photo.token %}" alt="Zdjęcie {{ photo.id }} z sesji" /> {# Lepszy tekst alternatywny #}
+            <div class="photo-overlay">Do wyboru</div>
+          </a>
+          <div class="status-chip {% if photo.selected and not photo.print %}visible{% endif %}">Wybrano</div>
         </div>
       {% empty %}
-        <p>Brak zdjęć w tej sesji.</p>
+        <p class="empty-gallery-message">Brak zdjęć w tej sesji.</p> {# Dodano klasę dla ewentualnego stylowania #}
       {% endfor %}
     </section>
-      <button type="submit">Dodaj do koszyka</button>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
-<script>
-  window.addEventListener('scroll', () => {
-    const header = document.getElementById('mainHeader');
-    if (window.scrollY > 80) {
-      header.classList.add('scrolled');
-    } else {
-      header.classList.remove('scrolled');
-    }
-  });
+    <div class="cart-actions"> {# Kontener dla przycisku koszyka #}
+      <button id="add-to-cart">Dodaj do koszyka</button>
+    </div>
+  </main>
 
-  function limitDigits(element, maxDigits) {
-    if (element.value.length > maxDigits) {
-      element.value = element.value.slice(0, maxDigits);
-    }
-  }
-  // Lightbox konfiguracja//
-  lightbox.option({
-    'resizeDuration': 100,
-    'wrapAround': true,
-  });
+  <footer>
+    <p>&copy; 2025 Kilar Fotografia. Wszelkie prawa zastrzeżone.</p> {# Poprawiono na paragraf dla spójności #}
+  </footer>
 
-</script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- Konfiguracja Lightbox ---
+      lightbox.option({
+        'resizeDuration': 100,
+        'wrapAround': true,
+      });
 
-<footer>
-  &copy; 2025 Kilar Fotografia. Wszelkie prawa zastrzeżone.
-</footer>
+      // --- Obsługa zakładek galerii ---
+      const galleryTabs = document.querySelectorAll('.gallery-tab');
+      galleryTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          galleryTabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          const filterValue = this.dataset.filter;
+          // todo; filtr
+          console.log('Filtruj wg:', filterValue);
+        });
+      });
+
+      // --- Obsługa dropdownu filtrowania
+      const photoFilterSelect = document.getElementById('photoFilterSelect');
+      if (photoFilterSelect) {
+        photoFilterSelect.addEventListener('change', function() {
+          const selectedValue = this.value;
+          // todo; filtr
+          console.log('Filtruj wg (select):', selectedValue);
+        });
+      }
+
+      // --- Zaznaczanie zdjęć ---
+      const galleryGrid = document.querySelector('.gallery-grid');
+      if (galleryGrid) {
+        galleryGrid.addEventListener('click', function(e) {
+          const button = e.target.closest('.select-btn.action-chip');
+          if (!button) return;
+
+          const photoItem = button.closest('.photo-item');
+          if (!photoItem || photoItem.classList.contains('print')) {
+            return; 
+          }
+
+          const iconElement = button.querySelector('.icon');
+          const textElement = button.querySelector('.text');
+          const statusChip = photoItem.querySelector('.status-chip');
+
+          photoItem.classList.toggle('selected');
+
+          if (photoItem.classList.contains('selected')) {
+            if (iconElement) iconElement.textContent = '-';
+            if (textElement) textElement.textContent = 'Usuń';
+            if (statusChip) statusChip.classList.add('visible');
+          } else {
+            if (iconElement) iconElement.textContent = '+';
+            if (textElement) textElement.textContent = 'Wybierz';
+            if (statusChip) statusChip.classList.remove('visible');
+          }
+          
+        });
+      }
+
+      
+
+      // --- Ochrona obrazów ---
+      document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('contextmenu', e => e.preventDefault());
+        img.setAttribute('draggable', 'false');
+      });
+
+      // Cykliczne zabezpieczanie obrazów w Lightbox (jeśli dynamicznie ładowane)
+      // Rozważ, czy to nadal potrzebne z aktualną wersją Lightbox2;
+      // Lightbox może już wewnętrznie obsługiwać eventy na swoich obrazach.
+      const protectLightboxImage = () => {
+        const lightboxImg = document.querySelector('.lb-image');
+        if (lightboxImg) {
+          lightboxImg.oncontextmenu = () => false;
+          lightboxImg.setAttribute('draggable', 'false');
+        }
+      };
+      protectLightboxImage();
+      new MutationObserver(protectLightboxImage).observe(document.body, { childList: true, subtree: true });
+    
+
+
+      //  blokowanie środkowego przycisku myszy na linkach Lightbox
+      document.querySelectorAll('.no-middle-click').forEach(link => {
+        link.addEventListener('mousedown', function(e) {
+          if (e.button === 1) { // 1 to środkowy przycisk
+            e.preventDefault();
+          }
+        });
+        link.addEventListener('auxclick', function(e) {
+          if (e.button === 1) {
+            e.preventDefault();
+          }
+        });
+      });
+
+      // --- Dodawanie do koszyka ---
+      const addToCartButton = document.getElementById('add-to-cart');
+      if (addToCartButton) {
+        addToCartButton.addEventListener('click', function() {
+          const selectedPhotoIds = Array.from(document.querySelectorAll('.photo-item.selected'))
+            .map(item => item.dataset.photoId);
+
+          if (selectedPhotoIds.length > 0) {
+            alert('Wybrane zdjęcia (ID): ' + selectedPhotoIds.join(', '));
+          } else {
+            alert('Nie wybrano żadnych zdjęć.');
+          }
+        });
+      }
+    });
+  </script>
 
 </body>
 </html>
