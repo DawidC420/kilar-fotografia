@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kontakt – Kilar Fotografia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{% static 'css/homepage.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/oferta.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/hero-slider.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/double-panel.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/kontakt.css' %}" />
+</head>
+<body>
+
+<header id="mainHeader">
+  <div class="logo-left">
+    <img
+      id="logoImg"
+      src="{% static 'images/logo.png' %}"
+      alt="Logo"
+      data-logo="{% static 'images/logo.png' %}"
+      data-logo-inverted="{% static 'images/logo-inverted.png' %}"
+    />
+  </div>
+
+  <div class="nav-links">
+    <a href="/">Strona główna</a>
+    <a href="{% url 'oferta' %}">Oferta</a>
+    <a href="{% url 'kontakt' %}">Kontakt</a>
+  </div>
+
+  <div class="hamburger" id="hamburgerBtn">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</header>
+
+<!-- Hero z prostym tłem i tekstem -->
+<section class="oferta-hero kontakt-hero">
+  <div class="hero-text">
+    <h1>Kontakt</h1>
+    <p>Skontaktuj się z nami, aby omówić szczegóły sesji fotograficznej lub zadać pytania.</p>
+  </div>
+</section>
+
+<!-- Sekcja kontaktowa z formularzem i danymi -->
+<section class="kontakt-section">
+  <div class="kontakt-container">
+    <div class="kontakt-form">
+      <h2>Formularz kontaktowy</h2>
+      <form method="post" action="{% url 'kontakt' %}">
+        {% csrf_token %}
+        <label for="name">Imię i nazwisko</label>
+        <input type="text" id="name" name="name" required placeholder="Twoje imię i nazwisko" />
+
+        <label for="email">Adres e-mail</label>
+        <input type="email" id="email" name="email" required placeholder="Twój e-mail" />
+
+        <label for="message">Wiadomość</label>
+        <textarea id="message" name="message" rows="6" required placeholder="Napisz wiadomość"></textarea>
+
+        <button type="submit" class="btn-submit">Wyślij</button>
+      </form>
+    </div>
+
+    <div class="kontakt-info">
+      <h2>Dane kontaktowe</h2>
+      <p><strong>Telefon:</strong> +48 123 456 789</p>
+      <p><strong>Email:</strong> kontakt@kilarfotografia.pl</p>
+      <p><strong>Adres:</strong> ul. Przykładowa 12, 00-000 Warszawa</p>
+      <p><strong>Facebook:</strong> 
+        <a href="https://facebook.com/kilarfotografia" target="_blank" rel="noopener" style="color: #55b9b3; text-decoration: none;">
+          facebook.com/kilarfotografia
+        </a>
+      </p>
+      <h3>Godziny pracy</h3>
+      <p>Poniedziałek – Piątek: 9:00 – 18:00</p>
+      <p>Sobota: 10:00 – 14:00</p>
+      <p>Niedziela: nieczynne</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  &copy; 2025 Kilar Fotografia. Wszelkie prawa zastrzeżone.
+</footer>
+
+<script src="{% static 'js/hero-slider.js' %}"></script>
+<script>
+  // efekt przy scrollu
+  window.addEventListener('scroll', () => {
+    const header = document.getElementById('mainHeader');
+    const logo = document.getElementById('logoImg');
+    if (window.scrollY > 80) {
+      header.classList.add('scrolled');
+      logo.src = "{% static 'images/logo-inverted.png' %}";
+    } else {
+      header.classList.remove('scrolled');
+      logo.src = "{% static 'images/logo.png' %}";
+    }
+  });
+</script>
+</body>
+</html>
