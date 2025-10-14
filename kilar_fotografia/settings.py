@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-gu54%j%ciiamhm^*l(qn$a2@w20jaedo*x**@^w726^=awso82
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['projektkilar.onrender.com']
 
 
 # Application definition
@@ -135,3 +135,4 @@ ENCRYPTION_KEY ='WyFihaDs8RiDcY6lCd_lxFKI4xfJeeRx7mIqRyB1-1k='
 
 
 FERNET = Fernet(ENCRYPTION_KEY)
+
