@@ -118,6 +118,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -131,5 +132,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 ENCRYPTION_KEY ='WyFihaDs8RiDcY6lCd_lxFKI4xfJeeRx7mIqRyB1-1k='
+
 
 FERNET = Fernet(ENCRYPTION_KEY)
