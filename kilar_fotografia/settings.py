@@ -28,6 +28,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['projektkilar.onrender.com']
 
+CSRF_TRUSTED_ORIGINS = ['https://projektkilar.onrender.com']
+
+
 
 # Application definition
 
@@ -135,4 +138,5 @@ ENCRYPTION_KEY ='WyFihaDs8RiDcY6lCd_lxFKI4xfJeeRx7mIqRyB1-1k='
 
 
 FERNET = Fernet(ENCRYPTION_KEY)
+
 
