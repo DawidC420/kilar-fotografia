@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-gu54%j%ciiamhm^*l(qn$a2@w20jaedo*x**@^w726^=awso82
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['projektkilar.onrender.com']
+ALLOWED_HOSTS = ['projektkilar.onrender.com', 'localhost', '127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = ['https://projektkilar.onrender.com']
 
@@ -140,3 +140,6 @@ ENCRYPTION_KEY ='WyFihaDs8RiDcY6lCd_lxFKI4xfJeeRx7mIqRyB1-1k='
 FERNET = Fernet(ENCRYPTION_KEY)
 
 
+TEMPLATES[0]["OPTIONS"]["context_processors"] += [
+    "fotoapp.context_processors.cart_count",
+]

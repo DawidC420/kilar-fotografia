@@ -1,19 +1,34 @@
+# fotoapp/views.py
+
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Session
-from django.http import FileResponse, Http404,HttpResponseForbidden
-from .utils import decrypt_path,encrypt_path
-import os
+from django.http import FileResponse, Http404, HttpResponseForbidden, JsonResponse
+from django.views.decorators.http import require_POST
 from django.conf import settings
+from django.urls import reverse
+import os
+
+from .models.session import Session
+from .models.photo import Photo
+from .utils import decrypt_path, encrypt_path
+from .cart import (
+    add as cart_add,
+    remove as cart_remove,
+    count as cart_count,
+    _cart as get_cart
+)
 
 
 def homepage(request):
     return render(request, 'fotoapp/homepage.html')
 
+
 def oferta(request):
     return render(request, 'fotoapp/oferta.html')
 
+
 def kontakt(request):
     return render(request, 'fotoapp/kontakt.html')
+
 
 def check_password(request):
     if request.method == "POST":
@@ -28,13 +43,12 @@ def check_password(request):
     return redirect('home')
 
 
-
 def gallery_view(request, access_token):
-# Widok galerii zdjęć dla użytkownika z unikalnym tokenem dostępu.
-# Sprawdza, czy istnieje sesja powiązana z tokenem.
-# Ustawia flagę 'gallery_access' w sesji użytkownika, aby umożliwić podgląd zdjęć.
-# Dla każdego zdjęcia generuje zaszyfrowany token ścieżki.
-# Renderuje szablon galerii z listą zdjęć i ich tokenami.
+    """
+    Widok galerii zdjęć dla użytkownika z unikalnym tokenem dostępu.
+    Ustawia flagę 'gallery_access' w sesji użytkownika.
+    Dla każdego zdjęcia generuje zaszyfrowany token ścieżki (do bezpiecznego serwowania).
+    """
     session = get_object_or_404(Session, access_token=access_token)
     photos = session.photos.all()
     request.session['gallery_access'] = True
@@ -44,11 +58,9 @@ def gallery_view(request, access_token):
 
 
 def serve_encrypted_image(request, token):
-# Obsługuje bezpieczne serwowanie zaszyfrowanych zdjęć.
-# Sprawdza, czy żądanie pochodzi z galerii (Referer zawiera '/gallery/') oraz czy zdjęcie jest ładowane jako <img> (nagłówek Sec-Fetch-Dest).
-# Sprawdza, czy flaga 'gallery_access' w sesji użytkownika jest ustawiona
-# Deszyfruje token zdjęcia, sprawdza istnienie pliku i zwraca go jako FileResponse.
-# Jeśli weryfikacja się nie powiedzie (zły Referer, brak flagi, błędny token), zwraca błąd 403 lub 404.
+    """
+    Serwuje obraz po zaszyfrowanej ścieżce, tylko z widoku galerii i jako <img>.
+    """
     try:
         referer = request.META.get('HTTP_REFERER', '')
         sec_fetch_dest = request.META.get('HTTP_SEC_FETCH_DEST', '')
@@ -65,3 +77,105 @@ def serve_encrypted_image(request, token):
         return FileResponse(open(full_path, 'rb'), content_type='image/jpeg')
     except Exception:
         raise Http404("Błędny token lub plik nie istnieje")
+
+
+# ===============================
+#             KOSZYK
+# ===============================
+
+@require_POST
+def api_cart_add(request, photo_id: int):
+    """
+    Dodaje 1 szt. zdjęcia do koszyka (sesja). Zwraca JSON z aktualnym licznikiem.
+    """
+    try:
+        p = Photo.objects.get(pk=photo_id)
+    except Photo.DoesNotExist:
+        raise Http404("Photo not found")
+
+    cart_add(request, photo_id=p.id, price=p.price, qty=1)
+    return JsonResponse({"ok": True, "count": cart_count(request)})
+
+
+@require_POST
+def api_cart_remove(request, photo_id: int):
+    """
+    Usuwa 1 szt. zdjęcia z koszyka (sesja). Zwraca JSON z aktualnym licznikiem.
+    """
+    try:
+        p = Photo.objects.get(pk=photo_id)
+    except Photo.DoesNotExist:
+        raise Http404("Photo not found")
+
+    cart_remove(request, photo_id=p.id, qty=1)
+    return JsonResponse({"ok": True, "count": cart_count(request)})
+
+
+@require_POST
+def api_cart_delete(request, photo_id: int):
+    """
+    Usuwa CAŁĄ pozycję z koszyka (zeroje qty). Do użycia w mini-koszyku przy przycisku „Usuń”.
+    """
+    cart = get_cart(request)  # dict w sesji
+    cart.pop(str(photo_id), None)
+    request.session.modified = True
+    return JsonResponse({"ok": True, "count": cart_count(request)})
+
+
+def api_cart_summary(request):
+    """
+    Zwraca JSON z zawartością koszyka (mini-koszyk):
+    {
+      "ok": true,
+      "items": [{"id":1,"qty":1,"price":"49.99","line_total":"49.99","thumb":"..."}],
+      "total":"149.97",
+      "count":3
+    }
+    """
+    cart = get_cart(request)  # np. {'12': {'qty': 2, 'price': '49.99'}, ...}
+    if not cart:
+        return JsonResponse({"ok": True, "items": [], "total": "0.00", "count": 0})
+
+    ids = [int(pid) for pid in cart.keys()]
+    photos = Photo.objects.filter(id__in=ids)
+    photos_map = {p.id: p for p in photos}
+
+    items = []
+    total = 0.0
+
+    for pid_str, entry in cart.items():
+        pid = int(pid_str)
+        p = photos_map.get(pid)
+        if not p:
+            continue
+        qty = int(entry.get("qty", 0))
+        price = float(entry.get("price", 0))
+        line_total = qty * price
+        total += line_total
+
+        token = encrypt_path(p.image.name)
+        thumb_url = request.build_absolute_uri(
+            reverse("serve_encrypted_image", args=[token])
+        )
+
+        items.append({
+            "id": pid,
+            "qty": qty,
+            "price": f"{price:.2f}",
+            "line_total": f"{line_total:.2f}",
+            "thumb": thumb_url,
+        })
+
+    return JsonResponse({
+        "ok": True,
+        "items": items,
+        "total": f"{total:.2f}",
+        "count": sum(i["qty"] for i in cart.values()),
+    })
+
+
+def cart_view(request):
+    """
+    (Opcjonalny fallback) Prosty widok koszyka – można go zachować, choć mini-koszyk działa w modalu.
+    """
+    return render(request, "cart/view.html", {"cart": get_cart(request)})

@@ -1,3 +1,4 @@
+/* === BAZA === */
 body {
   background: #fafbfc;
   margin: 0;
@@ -5,6 +6,7 @@ body {
   color: #222;
 }
 
+/* === HEADER === */
 header {
   display: flex;
   align-items: center;
@@ -15,6 +17,14 @@ header {
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+#mainHeader {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
 }
 
 .logo-left img {
@@ -40,6 +50,7 @@ h1 {
   margin: 0;
 }
 
+/* === ZAKŁADKI (jeśli kiedyś wrócą) === */
 .gallery-tabs {
   display: flex;
   gap: 24px;
@@ -65,6 +76,7 @@ h1 {
   opacity: 1;
 }
 
+/* === SIATKA GALERII === */
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -72,6 +84,7 @@ h1 {
   padding: 0 56px 56px 56px;
 }
 
+/* === KARTA ZDJĘCIA === */
 .photo-item {
   position: relative;
   border-radius: 18px;
@@ -94,7 +107,7 @@ h1 {
   transition: filter 0.2s;
 }
 
-
+/* nakładka z napisem (jeśli używasz) */
 .photo-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -111,105 +124,65 @@ h1 {
   letter-spacing: 1px;
   transition: background 0.3s ease-in-out;
 }
-
 .photo-item:hover .photo-overlay {
   background: radial-gradient(ellipse at center,
-                              rgba(0,0,0,0.05) 0%,
-                              rgba(0,0,0,0.15) 35%,
-                              rgba(0,0,0,0.65) 100%
-                             );
+    rgba(0,0,0,0.05) 0%,
+    rgba(0,0,0,0.15) 35%,
+    rgba(0,0,0,0.65) 100%
+  );
 }
 
-
+/* pasek z przyciskami w karcie */
 .photo-select-bar {
   position: absolute;
   top: 16px;
-  left: 16px;
+  left: 16px; /* jeśli chcesz po prawej, zmień na right:16px i usuń left */
   z-index: 3;
   display: flex;
-  gap: 10px; 
+  gap: 10px;
   align-items: center;
 }
 
+/* przycisk wybierz/usuń */
 .action-chip {
-  font-size: 0.95em;
-  border-radius: 8px;
-  padding: 7px 10px;
-  cursor: pointer;
-  font-weight: 500;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  opacity: 0.97;
-  transition: background 0.13s, opacity 0.2s ease-in-out, color 0.13s, border-color 0.13s;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
   border: 1.5px solid transparent;
-  gap: 5px;
-}
-
-.action-chip .icon {
-  font-weight: normal;
-  font-size: 1.1em;
+  background: #111;
+  color: #fff;
+  font-weight: 600;
   line-height: 1;
-}
-
-.photo-select-bar > * {
-  font-size: 1em;
-  border-radius: 16px;
-  padding: 3px 17px;
+  height: auto;
   cursor: pointer;
-  font-weight: 500;
-  background: #fff;
   box-shadow: 0 1px 4px rgba(0,0,0,0.07);
   opacity: 0.97;
   transition: background 0.13s, opacity 0.2s ease-in-out, color 0.13s, border-color 0.13s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  border: 1.5px solid transparent;
 }
+.action-chip:hover { filter: brightness(1.2); }
+.action-chip .icon { font-weight: 900; min-width: 12px; text-align: center; }
 
+/* stan "ukryty do hovera" dla przycisku wybierz */
 .photo-item:not(.selected):not(.print) .select-btn.action-chip {
   border-color: #bbb;
   background: #fff;
   color: #222;
-  opacity: 0; /* Domyślnie ukryty */
+  opacity: 0;
 }
-
 .photo-item:not(.selected):not(.print):hover .select-btn.action-chip {
   opacity: 0.97;
 }
 
-
+/* stan wybrane */
 .photo-item.selected .select-btn.action-chip {
   border-color: #c06868;
   background: #fce8e8;
   color: #a64747;
 }
 
-.selected-label {
-  background: #e7f7ea;
-  color: #2f7c4d;
-  border-color: #2f7c4d;
-  font-weight: 600;
-}
-
-
-.print-label.action-chip {
-  background: #f5e5e5;
-  color: #a64747;
-  border-color: #a64747;
-  font-weight: 600; 
-}
-
-.photo-item.print .select-btn,
-.photo-item.print .selected-label {
-  display: none !important;
-}
-.photo-item.print .print-label {
-  display: inline-flex !important;
-}
-
-
+/* status „Wybrano” */
 .status-chip {
   position: absolute;
   bottom: 12px;
@@ -221,12 +194,11 @@ h1 {
   font-size: 0.85em;
   font-weight: 500;
   z-index: 3;
-  opacity: 0; 
-  transform: translateY(10px); /* animacja */
+  opacity: 0;
+  transform: translateY(10px);
   transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
-  pointer-events: none; 
+  pointer-events: none;
 }
-
 .status-chip.visible {
   opacity: 1;
   transform: translateY(0);
@@ -236,13 +208,29 @@ h1 {
   box-shadow: 0 6px 32px rgba(0,0,0,0.11);
 }
 
+/* etykiety wydruków – jeśli używasz */
+.selected-label {
+  background: #e7f7ea;
+  color: #2f7c4d;
+  border-color: #2f7c4d;
+  font-weight: 600;
+}
+.print-label.action-chip {
+  background: #f5e5e5;
+  color: #a64747;
+  border-color: #a64747;
+  font-weight: 600;
+}
+.photo-item.print .select-btn,
+.photo-item.print .selected-label { display: none !important; }
+.photo-item.print .print-label { display: inline-flex !important; }
 
+/* dropdown (jeśli był używany) */
 .dropdown {
   position: absolute;
   top: 24px;
   right: 56px;
 }
-
 .dropdown select {
   padding: 7px 18px;
   border-radius: 16px;
@@ -253,6 +241,7 @@ h1 {
   color: #222;
 }
 
+/* globalny przycisk (jeśli kiedyś użyjesz) */
 button#add-to-cart {
   display: block;
   margin: 32px auto 0 auto;
@@ -267,11 +256,9 @@ button#add-to-cart {
   box-shadow: 0 2px 8px rgba(46,183,110,0.11);
   transition: background 0.14s;
 }
+button#add-to-cart:hover { background: #24925d; }
 
-button#add-to-cart:hover {
-  background: #24925d;
-}
-
+/* footer */
 footer {
   margin-top: 48px;
   padding: 32px 0;
@@ -281,9 +268,124 @@ footer {
   background: none;
 }
 
+/* responsive */
 @media (max-width: 900px) {
   .gallery-grid { padding: 0 12px 56px 12px; }
   header { padding: 18px 12px 0 12px; }
   .gallery-tabs { margin-left: 12px; }
   .dropdown { right: 12px; }
 }
+
+/* === KOSZYK W HEADERZE === */
+.cart-header {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+}
+.cart-icon {
+  font-size: 18px;
+  background: #2c7a7b;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 25px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-weight: 600;
+}
+.cart-icon:hover { background: #205f60; }
+
+/* === MINI-KOSZYK (DRAWER) === */
+.mc-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  z-index: 900;
+}
+.mc-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 380px;
+  max-width: 100%;
+  background: #fff;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+  display: none;
+  flex-direction: column;
+  z-index: 1000;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  overflow: hidden;
+}
+.mc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+  font-weight: 700;
+  font-size: 18px;
+}
+.mc-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+.mc-body {
+  flex: 1;
+  overflow: auto;
+  padding: 12px;
+}
+.mc-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.mc-item img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex: 0 0 64px;
+}
+.mc-meta {
+  flex: 1;
+  font-size: 14px;
+}
+.mc-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.mc-remove {
+  background: #e11d48;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.mc-remove:hover { background: #be123c; }
+.mc-footer {
+  border-top: 1px solid #ddd;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mc-checkout {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.mc-checkout:hover { background: #1d4ed8; }

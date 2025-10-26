@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Koszyk - Kilar Fotografia</title>
+  <link rel="stylesheet" href="{% static 'css/cart.css' %}">
+</head>
+<body>
+
+  <header id="mainHeader">
+    <div class="logo-left">
+      <a href="{% url 'home' %}">
+        <img src="{% static 'images/logo.png' %}" alt="Logo Kilar Fotografia" />
+      </a>
+    </div>
+
+    <div class="cart-right">
+      <a href="{% url 'cart_view' %}" class="cart-button">
+        🛒 Koszyk ({{ cart_count }})
+      </a>
+    </div>
+  </header>
+
+  <main class="cart-container">
+    <h1>Twój koszyk</h1>
+
+    {% if cart.items %}
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>Zdjęcie</th>
+            <th>Cena</th>
+            <th>Ilość</th>
+            <th>Usuń</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for photo_id, item in cart.items.items %}
+          <tr>
+            <td class="cart-image">
+              <img src="{{ item.image_url }}" alt="Zdjęcie {{ photo_id }}">
+            </td>
+            <td>{{ item.price }} zł</td>
+            <td>{{ item.qty }}</td>
+            <td>
+              <form method="post" action="{% url 'api_cart_remove' photo_id=photo_id %}" class="remove-form">
+                {% csrf_token %}
+                <button type="submit" class="remove-btn">🗑️</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="cart-summary">
+        <p><strong>Łączna kwota:</strong> {{ cart.total }} zł</p>
+        <button class="checkout-btn">Przejdź do płatności</button>
+      </div>
+    {% else %}
+      <p class="empty-cart">Twój koszyk jest pusty 😢</p>
+    {% endif %}
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Kilar Fotografia. Wszystkie prawa zastrzeżone.</p>
+  </footer>
+
+  <script>
+    // Dynamiczne usuwanie zdjęć z koszyka bez przeładowania
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.remove-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const response = await fetch(form.action, {
+            method: 'POST',
+            headers: {'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value}
+          });
+          if (response.ok) location.reload();
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

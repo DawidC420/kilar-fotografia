@@ -2,189 +2,231 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Galeria</title>
-  <link rel="stylesheet" href="{% static 'css/gallery.css' %}">
+  <link rel="stylesheet" href="{% static 'css/gallery.css' %}" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet" />
 </head>
 <body>
 
   <header id="mainHeader">
     <div class="logo-left">
-      <img src="{% static 'images/logo.png' %}" alt="Logo Kilar Fotografia" /> {# Lepszy tekst alternatywny dla logo #}
+      <img src="{% static 'images/logo.png' %}" alt="Logo Kilar Fotografia" />
+    </div>
+
+    <div class="cart-header">
+      <button type="button" id="open-mini-cart" class="cart-icon">
+        🛒 Koszyk (<span id="cart-count">{{ cart_count }}</span>)
+      </button>
     </div>
   </header>
 
-  <main> {# Dodano element <main> dla lepszej semantyki #}
-    <div class="gallery-controls"> {# Kontener dla zakładek i dropdownu #}
-      <div class="gallery-tabs">
-        <button class="gallery-tab active" data-filter="wszystkie">Wszystkie</button> {# Dodano atrybuty data dla filtrowania #}
-        <button class="gallery-tab" data-filter="zaproponowane">Zaproponowane</button>
-        <button class="gallery-tab" data-filter="do-pobrania">Do pobrania</button>
-      </div>
-
-      <div class="dropdown">
-        <select id="photoFilterSelect"> {# Dodano ID dla łatwiejszego dostępu w JS #}
-          <option value="wszystkie">Wszystkie zdjęcia</option>
-          <option value="wybrane">Wybrane</option>
-          <option value="wydruki">Wydruki</option>
-        </select>
-      </div>
-    </div>
-
+  <main>
     <section class="gallery-grid">
       {% for photo in photos %}
-        <div class="photo-item{% if photo.selected and not photo.print %} selected{% endif %}{% if photo.print %} print{% endif %}" data-photo-id="{{ photo.id }}">
+        <div class="photo-item" data-photo-id="{{ photo.id }}">
           <div class="photo-select-bar">
-            {% if photo.print %}
-              <span class="print-label action-chip">🖨️ Wydruki</span>
-            {% elif photo.selected %}
-              <button class="select-btn action-chip">
-                <span class="icon">-</span>
-                <span class="text">Usuń</span>
-              </button>
-            {% else %}
-              <button class="select-btn action-chip">
-                <span class="icon">+</span>
-                <span class="text">Wybierz</span>
-              </button>
-            {% endif %}
+            <button class="select-btn action-chip" type="button">
+              <span class="icon">+</span>
+              <span class="text">Wybierz</span>
+            </button>
           </div>
           <a href="{% url 'serve_encrypted_image' photo.token %}" data-lightbox="session-gallery" class="no-middle-click">
-            <img src="{% url 'serve_encrypted_image' photo.token %}" alt="Zdjęcie {{ photo.id }} z sesji" /> {# Lepszy tekst alternatywny #}
-            <div class="photo-overlay">Do wyboru</div>
+            <img src="{% url 'serve_encrypted_image' photo.token %}" alt="Zdjęcie {{ photo.id }}" draggable="false" />
           </a>
-          <div class="status-chip {% if photo.selected and not photo.print %}visible{% endif %}">Wybrano</div>
+          <div class="status-chip">Wybrano</div>
         </div>
       {% empty %}
-        <p class="empty-gallery-message">Brak zdjęć w tej sesji.</p> {# Dodano klasę dla ewentualnego stylowania #}
+        <p class="empty-gallery-message">Brak zdjęć w tej sesji.</p>
       {% endfor %}
     </section>
-
-    <div class="cart-actions"> {# Kontener dla przycisku koszyka #}
-      <button id="add-to-cart">Dodaj do koszyka</button>
-    </div>
   </main>
 
+  <!-- MINI-KOSZYK -->
+  <div id="miniCartBackdrop" class="mc-backdrop"></div>
+  <div id="miniCart" class="mc-panel">
+    <div class="mc-header">
+      Twój koszyk
+      <button id="miniCartClose" class="mc-close" type="button">×</button>
+    </div>
+    <div class="mc-body" id="miniCartBody">
+      <p style="text-align:center;color:#555">Ładowanie…</p>
+    </div>
+    <div class="mc-footer">
+      <div>Suma: <strong><span id="miniCartTotal">0.00</span> zł</strong></div>
+      <button id="checkoutBtn" class="mc-checkout" type="button">Przejdź do płatności</button>
+    </div>
+  </div>
+
   <footer>
-    <p>&copy; 2025 Kilar Fotografia. Wszelkie prawa zastrzeżone.</p> {# Poprawiono na paragraf dla spójności #}
+    <p>&copy; 2025 Kilar Fotografia. Wszelkie prawa zastrzeżone.</p>
   </footer>
+
+  <!-- wymuś ustawienie ciasteczka CSRF -->
+  <form style="display:none">{% csrf_token %}</form>
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // --- Konfiguracja Lightbox ---
-      lightbox.option({
-        'resizeDuration': 100,
-        'wrapAround': true,
-      });
-
-      // --- Obsługa zakładek galerii ---
-      const galleryTabs = document.querySelectorAll('.gallery-tab');
-      galleryTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-          galleryTabs.forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-          const filterValue = this.dataset.filter;
-          // todo; filtr
-          console.log('Filtruj wg:', filterValue);
-        });
-      });
-
-      // --- Obsługa dropdownu filtrowania
-      const photoFilterSelect = document.getElementById('photoFilterSelect');
-      if (photoFilterSelect) {
-        photoFilterSelect.addEventListener('change', function() {
-          const selectedValue = this.value;
-          // todo; filtr
-          console.log('Filtruj wg (select):', selectedValue);
-        });
-      }
-
-      // --- Zaznaczanie zdjęć ---
-      const galleryGrid = document.querySelector('.gallery-grid');
-      if (galleryGrid) {
-        galleryGrid.addEventListener('click', function(e) {
-          const button = e.target.closest('.select-btn.action-chip');
-          if (!button) return;
-
-          const photoItem = button.closest('.photo-item');
-          if (!photoItem || photoItem.classList.contains('print')) {
-            return; 
-          }
-
-          const iconElement = button.querySelector('.icon');
-          const textElement = button.querySelector('.text');
-          const statusChip = photoItem.querySelector('.status-chip');
-
-          photoItem.classList.toggle('selected');
-
-          if (photoItem.classList.contains('selected')) {
-            if (iconElement) iconElement.textContent = '-';
-            if (textElement) textElement.textContent = 'Usuń';
-            if (statusChip) statusChip.classList.add('visible');
-          } else {
-            if (iconElement) iconElement.textContent = '+';
-            if (textElement) textElement.textContent = 'Wybierz';
-            if (statusChip) statusChip.classList.remove('visible');
-          }
-          
-        });
-      }
-
-      
-
-      // --- Ochrona obrazów ---
-      document.querySelectorAll('img').forEach(img => {
-        img.addEventListener('contextmenu', e => e.preventDefault());
-        img.setAttribute('draggable', 'false');
-      });
-
-      // Cykliczne zabezpieczanie obrazów w Lightbox (jeśli dynamicznie ładowane)
-      // Rozważ, czy to nadal potrzebne z aktualną wersją Lightbox2;
-      // Lightbox może już wewnętrznie obsługiwać eventy na swoich obrazach.
-      const protectLightboxImage = () => {
-        const lightboxImg = document.querySelector('.lb-image');
-        if (lightboxImg) {
-          lightboxImg.oncontextmenu = () => false;
-          lightboxImg.setAttribute('draggable', 'false');
+    (function(){
+      try {
+        // --- CSRF cookie ---
+        function getCookie(name){
+          const value=("; "+document.cookie).split("; "+name+"=");
+          if(value.length===2) return value.pop().split(";").shift();
         }
-      };
-      protectLightboxImage();
-      new MutationObserver(protectLightboxImage).observe(document.body, { childList: true, subtree: true });
-    
+        const csrftoken = getCookie('csrftoken');
 
+        // --- Referencje DOM ---
+        const btnOpen = document.getElementById('open-mini-cart');
+        const backdrop = document.getElementById('miniCartBackdrop');
+        const panel = document.getElementById('miniCart');
+        const btnClose = document.getElementById('miniCartClose');
+        const bodyEl = document.getElementById('miniCartBody');
+        const totalEl = document.getElementById('miniCartTotal');
+        const headerCountEl = document.getElementById('cart-count');
+        const galleryGrid = document.querySelector('.gallery-grid');
 
-      //  blokowanie środkowego przycisku myszy na linkach Lightbox
-      document.querySelectorAll('.no-middle-click').forEach(link => {
-        link.addEventListener('mousedown', function(e) {
-          if (e.button === 1) { // 1 to środkowy przycisk
-            e.preventDefault();
+        function on(el, ev, fn){ if(el && el.addEventListener){ el.addEventListener(ev, fn); } }
+
+        // Synchronizacja UI galerii z koszykiem
+        function syncGalleryWithCart(idsSet){
+          document.querySelectorAll('.photo-item').forEach(item=>{
+            const id = item.dataset.photoId;
+            const inCart = idsSet.has(String(id));
+            const btn = item.querySelector('.select-btn');
+            const icon = btn ? btn.querySelector('.icon') : null;
+            const text = btn ? btn.querySelector('.text') : null;
+            const chip = item.querySelector('.status-chip');
+
+            item.classList.toggle('selected', inCart);
+            if(icon) icon.textContent = inCart ? '-' : '+';
+            if(text) text.textContent = inCart ? 'Usuń' : 'Wybierz';
+            if(chip) chip.classList.toggle('visible', inCart);
+          });
+        }
+
+        // Otwieranie/zamykanie mini-koszyka
+        function openMiniCart(){ backdrop.style.display='block'; panel.style.display='flex'; loadMiniCart(); }
+        function closeMiniCart(){ backdrop.style.display='none'; panel.style.display='none'; }
+        on(btnOpen, 'click', openMiniCart);
+        on(backdrop, 'click', closeMiniCart);
+        on(btnClose, 'click', closeMiniCart);
+
+        // Usuwanie z mini-koszyka (delegacja)
+        on(bodyEl, 'click', async (e)=>{
+          const btn = e.target.closest('.mc-remove');
+          if(!btn) return;
+          const id = btn.dataset.id;
+          try{
+            const res = await fetch(`/api/cart/delete/${id}/`, { method:'POST', headers:{'X-CSRFToken': csrftoken} });
+            if(!res.ok) throw new Error('HTTP '+res.status);
+            const data = await res.json();
+            await loadMiniCart();
+            if(headerCountEl && typeof data.count!=='undefined'){ headerCountEl.textContent = data.count; }
+          }catch(err){ console.error(err); alert('Nie udało się usunąć pozycji z koszyka.'); }
+        });
+
+        // Wczytaj mini-koszyk
+        async function loadMiniCart(){
+          try{
+            const res = await fetch('/api/cart/summary/');
+            if(!res.ok) throw new Error('HTTP '+res.status);
+            const data = await res.json();
+
+            bodyEl.innerHTML='';
+
+            if(!data.items || !data.items.length){
+              bodyEl.innerHTML = '<p style="text-align:center;color:#777">Koszyk jest pusty.</p>';
+              totalEl.textContent = '0.00';
+              if(headerCountEl && typeof data.count!=='undefined'){ headerCountEl.textContent = data.count; }
+              syncGalleryWithCart(new Set());
+              return;
+            }
+
+            const idsInCart = new Set(data.items.map(i=>String(i.id)));
+            for(const it of data.items){
+              const row = document.createElement('div');
+              row.className = 'mc-item';
+              row.innerHTML = `
+                <img src="${it.thumb}" alt="Zdjęcie ${it.id}" />
+                <div class="mc-meta">
+                  <div><strong>Zdjęcie #${it.id}</strong></div>
+                  <div>Ilość: ${it.qty} × ${it.price} zł</div>
+                </div>
+                <div class="mc-right">
+                  <div>${it.line_total} zł</div>
+                  <button class="mc-remove" data-id="${it.id}" type="button">Usuń</button>
+                </div>
+              `;
+              bodyEl.appendChild(row);
+            }
+            totalEl.textContent = data.total || '0.00';
+            if(headerCountEl && typeof data.count!=='undefined'){ headerCountEl.textContent = data.count; }
+
+            // kluczowe: pełna synchronizacja galerii
+            syncGalleryWithCart(idsInCart);
+
+          }catch(err){
+            console.error(err);
+            bodyEl.innerHTML = '<p style="text-align:center;color:#777">Nie udało się pobrać koszyka.</p>';
+            totalEl.textContent = '0.00';
+          }
+        }
+
+        // „Przejdź do płatności” – placeholder
+        on(document.getElementById('checkoutBtn'), 'click', ()=>{
+          alert('Tutaj podłączymy przekierowanie do Przelewy24 (checkout_start).');
+        });
+
+        // Zaznaczanie zdjęć (dodawanie/usuwanie)
+        on(galleryGrid, 'click', async (e)=>{
+          const btn = e.target.closest('.select-btn');
+          if(!btn) return;
+          const item = btn.closest('.photo-item');
+          if(!item) return;
+          const id = item.dataset.photoId;
+          const icon = btn.querySelector('.icon');
+          const text = btn.querySelector('.text');
+          const chip = item.querySelector('.status-chip');
+
+          const willSelect = !item.classList.contains('selected');
+          // optymistycznie UI
+          item.classList.toggle('selected', willSelect);
+          if(icon) icon.textContent = willSelect ? '-' : '+';
+          if(text) text.textContent = willSelect ? 'Usuń' : 'Wybierz';
+          if(chip) chip.classList.toggle('visible', willSelect);
+
+          try{
+            const url = willSelect ? `/api/cart/add/${id}/` : `/api/cart/delete/${id}/`;
+            const res = await fetch(url, { method:'POST', headers:{'X-CSRFToken': csrftoken} });
+            if(!res.ok) throw new Error('HTTP '+res.status);
+            await loadMiniCart();
+          }catch(err){
+            console.error(err);
+            // cofka UI
+            const nowSel = item.classList.contains('selected');
+            item.classList.toggle('selected', !nowSel);
+            if(icon) icon.textContent = !nowSel ? '-' : '+';
+            if(text) text.textContent = !nowSel ? 'Usuń' : 'Wybierz';
+            if(chip) chip.classList.toggle('visible', !nowSel);
+            alert('Nie udało się zaktualizować koszyka.');
           }
         });
-        link.addEventListener('auxclick', function(e) {
-          if (e.button === 1) {
-            e.preventDefault();
-          }
-        });
-      });
 
-      // --- Dodawanie do koszyka ---
-      const addToCartButton = document.getElementById('add-to-cart');
-      if (addToCartButton) {
-        addToCartButton.addEventListener('click', function() {
-          const selectedPhotoIds = Array.from(document.querySelectorAll('.photo-item.selected'))
-            .map(item => item.dataset.photoId);
-
-          if (selectedPhotoIds.length > 0) {
-            alert('Wybrane zdjęcia (ID): ' + selectedPhotoIds.join(', '));
-          } else {
-            alert('Nie wybrano żadnych zdjęć.');
-          }
+        // Lightbox + zabezpieczenia
+        if (window.lightbox && lightbox.option) {
+          lightbox.option({ resizeDuration: 100, wrapAround: true });
+        }
+        document.querySelectorAll('img').forEach(img=>{
+          img.addEventListener('contextmenu', e=>e.preventDefault());
+          img.setAttribute('draggable', 'false');
         });
+
+      } catch (err) {
+        console.error('Błąd inicjalizacji skryptu galerii:', err);
       }
-    });
+    })();
   </script>
 
 </body>
