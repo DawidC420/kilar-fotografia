@@ -19,4 +19,8 @@ urlpatterns = [
     path("api/cart/summary/", views.api_cart_summary, name="api_cart_summary"),
     path("api/cart/delete/<int:photo_id>/", views.api_cart_delete, name="api_cart_delete"),
 
+    # panel klienta
+    path("panel-klienta/", views.client_panel, name="client_panel"),
+    path("panel-klienta/order/<int:order_id>/", views.client_order_detail, name="client_order_detail"),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
