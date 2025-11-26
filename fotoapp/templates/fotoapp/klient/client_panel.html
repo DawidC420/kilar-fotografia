@@ -60,16 +60,10 @@
                 <div class="item-placeholder">—</div>
               {% endif %}
               <div class="item-info">
-                <div class="item-title">
-                  {% if item.photo.title %}
-                    {{ item.photo.title }}
-                  {% elif item.photo %}
-                    {{ item.photo.image.name|truncatechars:30 }}
-                  {% else %}
-                    (brak informacji)
-                  {% endif %}
-                </div>
-                <div class="meta">Ilość: {{ item.qty }} · Cena: {{ item.price }} PLN</div>
+               
+
+                <div class="meta">Cena: {{ item.price }} PLN</div>
+
               </div>
             </div>
           {% endfor %}

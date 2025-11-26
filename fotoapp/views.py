@@ -77,28 +77,26 @@ def serve_encrypted_image(request, token):
         allowed_referers = ('/gallery/', '/panel-klienta')
         referer_ok = any(r in referer for r in allowed_referers)
 
+        #Odmowa dostępu jeśli żądanie nie pochodzi z kontekstu obrazu
         if sec_fetch_dest and sec_fetch_dest != 'image':
             return HttpResponseForbidden("Dostęp zabroniony. Nieprawidłowy kontekst żądania.")
-
+        # Odmowa jeśli brak sesji i niepoprawny referer
         if not request.session.get('gallery_access') and not referer_ok:
             return HttpResponseForbidden("Dostęp zabroniony. Brak sesji lub nieprawidłowy referer.")
 
         path = decrypt_path(token)
         full_path = os.path.join(settings.MEDIA_ROOT, path)
-        
         if not os.path.isfile(full_path):
             raise FileNotFoundError
         
         return FileResponse(open(full_path, 'rb'), content_type='image/jpeg')
-    except FileNotFoundError:
-        raise Http404("Plik nie istnieje")
-    except Exception:
-        raise Http404("Błędny token lub plik nie istnieje")
 
+    except (FileNotFoundError, Exception):
+        raise Http404("Plik nie istnieje lub token jest błędny")
 
 def client_panel(request):
     """
-    Panel klienta — wyświetla historię zamówień z podglądami zdjęć.
+    Panel klienta — wyświetla historię zamówień z podglądami zdjęć (bez ilości).
     """
     if not request.session.get('gallery_access'):
         request.session['gallery_access'] = True
@@ -116,15 +114,18 @@ def client_panel(request):
         except Session.DoesNotExist:
             photos = []
             gallery_url = None
-
+    """
+     Przykładowe zamówienia 
+    """
     orders = [
         {
             "id": 1,
             "date": "2025-10-10",
             "total": "149.97",
             "items": [
-                {"photo": photos[0] if len(photos) > 0 else None, "qty": 1, "price": "49.99"},
-                {"photo": photos[1] if len(photos) > 1 else None, "qty": 2, "price": "49.99"},
+                {"photo": photos[0] if len(photos) > 0 else None, "price": "49.99"},
+                {"photo": photos[1] if len(photos) > 1 else None, "price": "49.99"},
+                {"photo": photos[2] if len(photos) > 2 else None, "price": "49.99"},
             ]
         },
         {
@@ -132,19 +133,23 @@ def client_panel(request):
             "date": "2025-10-15",
             "total": "99.98",
             "items": [
-                {"photo": photos[2] if len(photos) > 2 else None, "qty": 1, "price": "49.99"},
-                {"photo": photos[3] if len(photos) > 3 else None, "qty": 1, "price": "49.99"},
+                {"photo": photos[3] if len(photos) > 3 else None, "price": "49.99"},
+                {"photo": photos[4] if len(photos) > 4 else None, "price": "49.99"},
             ]
         }
     ]
-
+    """
+     Generowanie miniaturek
+    """
     for order in orders:
         for item in order["items"]:
             p = item.get("photo")
             if p:
                 try:
                     token = encrypt_path(p.image.name)
-                    item["thumb"] = request.build_absolute_uri(reverse("serve_encrypted_image", args=[token]))
+                    item["thumb"] = request.build_absolute_uri(
+                        reverse("serve_encrypted_image", args=[token])
+                    )
                 except Exception:
                     item["thumb"] = ""
             else:
@@ -155,10 +160,9 @@ def client_panel(request):
         'gallery_url': gallery_url,
     })
 
-
 def client_order_detail(request, order_id: int):
     """
-    Szczegóły zamówienia klienta.
+    Szczegóły zamówienia klienta — zdjęcie, cena, możliwość pobrania.
     """
     if not request.session.get('gallery_access'):
         request.session['gallery_access'] = True
@@ -173,15 +177,18 @@ def client_order_detail(request, order_id: int):
         photos = list(session_obj.photos.all()[:6])
     except Session.DoesNotExist:
         return HttpResponseForbidden("Brak informacji o sesji galerii.")
-
+    """
+     Zamówienia 
+    """
     sample_orders = {
         1: {
             "id": 1,
             "date": "2025-10-10",
             "total": "149.97",
             "items": [
-                {"photo": photos[0] if len(photos) > 0 else None, "qty": 1, "price": "49.99"},
-                {"photo": photos[1] if len(photos) > 1 else None, "qty": 2, "price": "49.99"},
+                {"photo": photos[0] if len(photos) > 0 else None, "price": "49.99"},
+                {"photo": photos[1] if len(photos) > 1 else None, "price": "49.99"},
+                {"photo": photos[2] if len(photos) > 2 else None, "price": "49.99"},
             ]
         },
         2: {
@@ -189,8 +196,8 @@ def client_order_detail(request, order_id: int):
             "date": "2025-10-15",
             "total": "99.98",
             "items": [
-                {"photo": photos[2] if len(photos) > 2 else None, "qty": 1, "price": "49.99"},
-                {"photo": photos[3] if len(photos) > 3 else None, "qty": 1, "price": "49.99"},
+                {"photo": photos[3] if len(photos) > 3 else None, "price": "49.99"},
+                {"photo": photos[4] if len(photos) > 4 else None, "price": "49.99"},
             ]
         }
     }
@@ -198,29 +205,29 @@ def client_order_detail(request, order_id: int):
     order = sample_orders.get(order_id)
     if not order:
         raise Http404("Zamówienie nie istnieje")
-
+    """
+     Dodajemy: miniaturkę + link do pobrania
+    """
     for item in order["items"]:
         p = item.get("photo")
+
         if p:
             try:
                 token = encrypt_path(p.image.name)
-                item["thumb"] = request.build_absolute_uri(reverse("serve_encrypted_image", args=[token]))
+                encrypted_url = reverse("serve_encrypted_image", args=[token])
+
+                item["thumb"] = request.build_absolute_uri(encrypted_url)
+                item["download_url"] = item["thumb"] + "?download=1" 
             except Exception:
                 item["thumb"] = ""
+                item["download_url"] = ""
         else:
             item["thumb"] = ""
-
-        try:
-            qty = int(item.get("qty", 0))
-            price = float(item.get("price", 0))
-            item["line_total"] = f"{(qty * price):.2f}"
-        except Exception:
-            item["line_total"] = "0.00"
+            item["download_url"] = ""
 
     return render(request, 'fotoapp/klient/order_detail.html', {
         'order': order,
     })
-
 
 # ===============================
 #             KOSZYK
