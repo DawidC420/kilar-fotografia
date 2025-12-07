@@ -5,21 +5,8 @@
   <meta charset="utf-8">
   <title>Szczegóły zamówienia #{{ order.id }}</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; color: #222; }
-    header#mainHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-    .logo-left img { height: 44px; }
-    .nav-right { display: flex; gap: 8px; align-items: center; }
-    .cart-icon { display: inline-block; padding: 8px 14px; background: #2b7b73; color: #fff; border-radius: 24px; text-decoration: none; font-weight: 600; }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; table-layout: fixed; }
-    th, td { padding: 12px 8px; border: 1px solid #eaeaea; text-align: center; vertical-align: middle; }
-    th { background: #f3f3f3; }
-    img.thumb { width: 120px; height: 90px; object-fit: cover; border-radius: 4px; display: block; margin: 0 auto; }
-    .right { text-align: center; } /* wyrównanie cen i przycisków */
-    a.download-btn { background: #007acc; padding: 6px 10px; border-radius: 6px; color: #fff; text-decoration: none; font-weight: 600; display: inline-block; }
-    a.download-btn:hover { background: #0063a8; }
-    .no-thumb { color: #999; font-style: italic; }
-  </style>
+  <link rel="stylesheet" href="{% static 'css/order_detail.css' %}">
+
 </head>
 <body>
 
@@ -68,7 +55,7 @@
   </tbody>
 </table>
 
-<footer style="margin-top: 20px; color: #999; font-size: 0.9em; text-align: center;">
+<footer>
   &copy; 2025 Kilar Fotografia. Wszelkie prawa zastrzeżone.
 </footer>
 

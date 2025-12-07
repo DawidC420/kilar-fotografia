@@ -96,73 +96,43 @@ def serve_encrypted_image(request, token):
 
 def client_panel(request):
     """
-    Panel klienta — wyświetla historię zamówień z podglądami zdjęć (bez ilości).
+    Panel klienta — wyświetla historię zamówień i miniaturki zdjęć.
+    W przyszłości pobieranie zamówień z bazy danych.
     """
     if not request.session.get('gallery_access'):
         request.session['gallery_access'] = True
         request.session.modified = True
 
-    photos = []
     session_id = request.session.get('gallery_session_id')
     gallery_url = None
-    
+    orders = []
+
     if session_id:
         try:
             session_obj = Session.objects.get(id=session_id)
-            photos = list(session_obj.photos.all()[:6])
+            # Miniaturki dla  zdjęć w panelu
+            photos = list(session_obj.photos.all())
             gallery_url = reverse('gallery_view', args=[session_obj.access_token])
+
+            # W przyszłości tutaj pobierzemy zamówienia z bazy:
+            # orders = Order.objects.filter(session=session_obj).order_by('-date')
+            # dla każdego orderu dodamy linki do miniatur i zdjęć
+            # obecnie zostawiamy puste listy
+
         except Session.DoesNotExist:
             photos = []
             gallery_url = None
-    """
-     Przykładowe zamówienia 
-    """
-    orders = [
-        {
-            "id": 1,
-            "date": "2025-10-10",
-            "total": "149.97",
-            "items": [
-                {"photo": photos[0] if len(photos) > 0 else None, "price": "49.99"},
-                {"photo": photos[1] if len(photos) > 1 else None, "price": "49.99"},
-                {"photo": photos[2] if len(photos) > 2 else None, "price": "49.99"},
-            ]
-        },
-        {
-            "id": 2,
-            "date": "2025-10-15",
-            "total": "99.98",
-            "items": [
-                {"photo": photos[3] if len(photos) > 3 else None, "price": "49.99"},
-                {"photo": photos[4] if len(photos) > 4 else None, "price": "49.99"},
-            ]
-        }
-    ]
-    """
-     Generowanie miniaturek
-    """
-    for order in orders:
-        for item in order["items"]:
-            p = item.get("photo")
-            if p:
-                try:
-                    token = encrypt_path(p.image.name)
-                    item["thumb"] = request.build_absolute_uri(
-                        reverse("serve_encrypted_image", args=[token])
-                    )
-                except Exception:
-                    item["thumb"] = ""
-            else:
-                item["thumb"] = ""
 
     return render(request, 'fotoapp/klient/client_panel.html', {
         'orders': orders,
         'gallery_url': gallery_url,
     })
 
+
 def client_order_detail(request, order_id: int):
     """
-    Szczegóły zamówienia klienta — zdjęcie, cena, możliwość pobrania.
+    Szczegóły zamówienia klienta.
+    Obecnie brak danych — w przyszłości pobieranie z bazy.
     """
     if not request.session.get('gallery_access'):
         request.session['gallery_access'] = True
@@ -177,53 +147,18 @@ def client_order_detail(request, order_id: int):
         photos = list(session_obj.photos.all()[:6])
     except Session.DoesNotExist:
         return HttpResponseForbidden("Brak informacji o sesji galerii.")
-    """
-     Zamówienia 
-    """
-    sample_orders = {
-        1: {
-            "id": 1,
-            "date": "2025-10-10",
-            "total": "149.97",
-            "items": [
-                {"photo": photos[0] if len(photos) > 0 else None, "price": "49.99"},
-                {"photo": photos[1] if len(photos) > 1 else None, "price": "49.99"},
-                {"photo": photos[2] if len(photos) > 2 else None, "price": "49.99"},
-            ]
-        },
-        2: {
-            "id": 2,
-            "date": "2025-10-15",
-            "total": "99.98",
-            "items": [
-                {"photo": photos[3] if len(photos) > 3 else None, "price": "49.99"},
-                {"photo": photos[4] if len(photos) > 4 else None, "price": "49.99"},
-            ]
-        }
+
+    # W przyszłości pobranie zamówienia z bazy
+    # order = Order.objects.get(id=order_id, session=session_obj)
+    # items = order.items.all()
+    # dla każdego item generujemy token + thumb + download_url
+
+    order = {
+        "id": order_id,
+        "date": None,
+        "total": None,
+        "items": []
     }
-
-    order = sample_orders.get(order_id)
-    if not order:
-        raise Http404("Zamówienie nie istnieje")
-    """
-     Dodajemy: miniaturkę + link do pobrania
-    """
-    for item in order["items"]:
-        p = item.get("photo")
-
-        if p:
-            try:
-                token = encrypt_path(p.image.name)
-                encrypted_url = reverse("serve_encrypted_image", args=[token])
-
-                item["thumb"] = request.build_absolute_uri(encrypted_url)
-                item["download_url"] = item["thumb"] + "?download=1" 
-            except Exception:
-                item["thumb"] = ""
-                item["download_url"] = ""
-        else:
-            item["thumb"] = ""
-            item["download_url"] = ""
 
     return render(request, 'fotoapp/klient/order_detail.html', {
         'order': order,

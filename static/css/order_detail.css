@@ -1,0 +1,122 @@
+/* order_detail.css */
+
+/* Reset box-sizing */
+* {
+    box-sizing: border-box;
+}
+
+/* Cała strona jako flex-column, aby footer był przy dole */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    color: #222;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Nagłówek */
+header#mainHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.logo-left img {
+    height: 44px;
+}
+
+.nav-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.cart-icon {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #2b7b73;
+    color: #fff;
+    border-radius: 24px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Nagłówek strony */
+h1 {
+    margin-top: 0;
+}
+
+/* Informacje o zamówieniu */
+.muted {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 12px;
+}
+
+/* Tabela zamówienia */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    table-layout: fixed;
+}
+
+th, td {
+    padding: 12px 8px;
+    border: 1px solid #eaeaea;
+    text-align: center;
+    vertical-align: middle;
+}
+
+th {
+    background: #f3f3f3;
+}
+
+/* Miniaturki zdjęć */
+img.thumb {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+    margin: 0 auto;
+}
+
+.no-thumb {
+    color: #999;
+    font-style: italic;
+}
+
+/* Przyciski pobierania */
+a.download-btn {
+    background: #007acc;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+}
+
+a.download-btn:hover {
+    background: #0063a8;
+}
+
+/* Stopka - zawsze na dole */
+footer {
+    margin-top: auto; /* kluczowe: wypycha stopkę na dół */
+    padding-top: 20px;
+    border-top: 1px solid #eaeaea;
+    color: #999;
+    font-size: 0.9em;
+    text-align: center;
+}

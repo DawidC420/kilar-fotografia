@@ -1,0 +1,178 @@
+/* client_panel.css */
+
+/* Reset box-sizing */
+* {
+    box-sizing: border-box;
+}
+
+/* Cała strona jako flex-column, aby footer był przy dole */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    color: #222;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Nagłówek */
+header#mainHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logo-left img {
+    height: 44px;
+}
+
+.nav-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.cart-icon {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #2b7b73;
+    color: #fff;
+    border-radius: 24px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.cart-icon:hover {
+    background: #1f5951;
+}
+
+.cart-icon.secondary {
+    background: #666;
+}
+
+.cart-icon.secondary:hover {
+    background: #555;
+}
+
+/* Nagłówki */
+h1 {
+    margin-top: 0;
+}
+
+/* Pojedyncze zamówienie */
+.order {
+    background: white;
+    border: 1px solid #eaeaea;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.order h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.2em;
+}
+
+/* Meta informacje */
+.meta {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Lista zdjęć w zamówieniu */
+.items {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex: 1;
+    min-width: 250px;
+    padding: 8px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+img.thumb {
+    width: 80px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.item-placeholder {
+    width: 80px;
+    height: 56px;
+    background: #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.item-info {
+    flex: 1;
+}
+
+.item-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+/* Przyciski */
+a.button {
+    display: inline-block;
+    padding: 8px 12px;
+    background: #007acc;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.2s;
+    margin-top: 10px;
+}
+
+a.button:hover {
+    background: #005a9e;
+}
+
+/* Stopka - zawsze na dole */
+footer {
+    margin-top: auto; /* kluczowe: wypycha stopkę na dół */
+    padding-top: 20px;
+    border-top: 1px solid #eaeaea;
+    color: #999;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+/* Brak zamówień */
+.no-orders {
+    background: white;
+    padding: 20px;
+    border-radius: 6px;
+    text-align: center;
+    color: #666;
+}
