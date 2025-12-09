@@ -1,0 +1,57 @@
+{% load static %}
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <title>Panel klienta — Historia zamówień</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="{% static 'css/client_panel.css' %}">
+</head>
+<body>
+  <header id="mainHeader">
+    <div class="logo-left">
+      <a href="{% url 'home' %}"><img src="{% static 'images/logo.png' %}" alt="Logo Kilar Fotografia" /></a>
+    </div>
+    <div class="nav-right">
+  <a href="{{ gallery_url }}" class="cart-icon">← Powrót do galerii</a>
+      <a href="{% url 'home' %}" class="cart-icon secondary">Strona główna</a>
+    </div>
+  </header>
+
+  <h1>Historia zamówień</h1>
+
+  {% if orders %}
+  {% for order in orders %}
+  <div class="order">
+    <h2>Zamówienie #{{ order.id }}</h2>
+    <div class="meta"> Data: {{ order.date|date:"Y-m-d H:i" }} ·  Razem: <strong>{{ order.total }} PLN</strong></div>
+
+    <div class="items">
+      {% for item in order.items.all %}
+        <div class="item">
+          {% if item.thumb %}
+            <img class="thumb" src="{{ item.thumb }}" alt="Podgląd zdjęcia">
+          {% else %}
+            <div class="item-placeholder">—</div>
+          {% endif %}
+          <div class="item-info">
+            <div class="meta">Cena: {{ item.price }} PLN</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <a class="button" href="{{ order.zip_absolute }}">Pobierz ZIP →</a>
+  </div>
+{% endfor %}
+{% else %}
+  <div class="no-orders">
+    <p> Brak zamówień</p>
+  </div>
+{% endif %}
+
+  <footer>
+    <p>&copy; 2025 Kilar Fotografia. Wszelkie prawa zastrzeżone.</p>
+  </footer>
+</body>
+</html>

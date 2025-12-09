@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Session, Photo
 from .forms import SessionAdminForm
+from .models.order import Order, OrderItem
 
 # Inline do zarządzania pojedyńczymi zdjęciami na stronie edycji Session.
 class PhotoInline(admin.TabularInline):
@@ -33,3 +34,29 @@ class SessionAdmin(admin.ModelAdmin):
         self.message_user(request, f'Wygenerowano nowe hasła dla {queryset.count()} sesji.')
 
 admin.site.register(Session, SessionAdmin)
+
+
+
+
+# ===============================
+# Rejestracja modelu Order w adminie
+# - OrderItemInline pokazuje wszystkie pozycje zamówienia w formularzu Order
+# - OrderAdmin pokazuje listę zamówień z kolumnami ID, email, data, suma, session_key
+#   oraz umożliwia wyszukiwanie po emailu i sesji
+# - Dzięki inline admin od razu widzi wszystkie zdjęcia i ceny w zamówieniu
+# ===============================
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+    readonly_fields = ('photo', 'price')
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'email', 'date', 'total', 'session_key')
+    search_fields = ('email', 'session_key')
+    inlines = [OrderItemInline]
+
+
+

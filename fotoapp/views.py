@@ -11,6 +11,9 @@ from django.urls import reverse
 from django.core.mail import send_mail
 from .models.session import Session
 from .models.photo import Photo
+from .models.order import Order, OrderItem
+from decimal import Decimal
+
 from .utils import decrypt_path, encrypt_path
 from .cart import (
     add as cart_add,
@@ -62,6 +65,8 @@ def gallery_view(request, access_token):
     session = get_object_or_404(Session, access_token=access_token)
     photos = session.photos.all()
     request.session['gallery_access'] = True
+    
+    
     for photo in photos:
         photo.token = encrypt_path(photo.image.name)
     return render(request, 'fotoapp/gallery.html', {'session': session, 'photos': photos})
@@ -281,6 +286,31 @@ def payment_success(request):
         print(f"!!! BŁĄD TWORZENIA ZIP: {e}")
         return render(request, 'fotoapp/homepage.html', {'error': 'Wystąpił błąd podczas generowania plików (ZIP).'})
 
+
+    #=========================
+    #  ZAPIS DO ''BAZY DANYCH''
+    #=========================
+
+    # Tworzenie zamówienia
+    request.session.modified = True
+    order = Order.objects.create(
+    email=None,  # jeśli nie używasz maila
+    zip_url=zip_relative_url,
+    total=sum(float(item['price']) for item in get_cart(request).values()),
+    session_key=request.session.session_key  # <- tu zapisujesz aktualną sesję
+)
+
+    # Tworzenie pozycji zamówienia
+    for photo in photos:
+        OrderItem.objects.create(
+        order=order,
+        photo=photo,
+        price=photo.price
+    )
+    
+     
+
+
     # wysylanie maila
     email_sent = False
     if customer_email:
@@ -308,3 +338,43 @@ def payment_success(request):
         'email_error': not email_sent and customer_email is not None # Informacja dla template'u
     }
     return render(request, 'fotoapp/success.html', context)
+
+
+#==============================
+#       PANEL KLIENTA   
+#==============================
+
+"""
+    Widok panelu klienta:
+    - Pobiera wszystkie zamówienia powiązane z bieżącą sesją (session_key)
+    - Generuje miniaturki zdjęć w zamówieniach
+    - Przygotowuje link do pobrania ZIP z zamówieniem
+"""
+
+def client_panel(request):
+    session_key = request.session.session_key
+    orders = Order.objects.filter(session_key=session_key).prefetch_related('items__photo')
+    # domyślny link
+    gallery_url = '#'
+
+    # pierwsze zamówienie z sesją galerii
+    first_order = orders.first()
+    if first_order:
+        photos = [item.photo for item in first_order.items.all() if item.photo]
+        if photos and hasattr(photos[0], 'session') and photos[0].session:
+            gallery_url = reverse('gallery_view', args=[photos[0].session.access_token])
+
+    # Generowanie miniaturek i linków do ZIP
+    for order in orders:
+        for item in order.items.all():
+            photo = item.photo
+            if photo:
+                item.thumb = request.build_absolute_uri(
+                    reverse("serve_encrypted_image", args=[encrypt_path(photo.image.name)])
+                )
+        order.zip_absolute = request.build_absolute_uri(order.zip_url)
+
+    return render(request, 'fotoapp/client_panel.html', {
+        'orders': orders,
+        'gallery_url': gallery_url,
+    })

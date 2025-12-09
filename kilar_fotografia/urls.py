@@ -20,5 +20,5 @@ urlpatterns = [
     path("cart/", views.cart_view, name="cart_view"),
     path('checkout/', views.create_checkout_session, name='checkout'),
     path('success/', views.payment_success, name='payment_success'),
-
+    path('panel-klienta/', views.client_panel, name='client_panel'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
